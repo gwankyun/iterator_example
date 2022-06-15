@@ -23,17 +23,26 @@
 //     Iter_t m_iter;
 // };
 
-template<typename T>
+template<typename Iter>
 struct LegacyOutputIterator
+    : public Indirection<LegacyOutputIterator<Iter>, Iter>
+    , public Increment<LegacyOutputIterator<Iter>, Iter>
 {
-    typedef LegacyIterator<T> Iter_t;
+    //typedef LegacyIterator<T> Iter_t;
 #ifdef __cpp_lib_concepts
     using iterator_concept = std::output_iterator_tag;
 #endif
-    typedef typename Iter_t::difference_type difference_type;
-    typedef typename Iter_t::value_type value_type;
-    typedef typename Iter_t::pointer pointer;
-    typedef typename Iter_t::reference reference;
+
+    //typedef typename Iter_t::difference_type difference_type;
+    //typedef typename Iter_t::value_type value_type;
+    //typedef typename Iter_t::pointer pointer;
+    //typedef typename Iter_t::reference reference;
+
+    typedef typename Iter::difference_type difference_type;
+    typedef typename Iter::value_type value_type;
+    typedef typename Iter::pointer pointer;
+    typedef typename Iter::reference reference;
+
     typedef std::output_iterator_tag iterator_category;
 
     LegacyOutputIterator() {}
@@ -53,33 +62,25 @@ struct LegacyOutputIterator
 
     ~LegacyOutputIterator() {}
 
-    reference operator*()
-    {
-        return *m_iter;
-    }
+    LegacyOutputIterator(pointer ptr) : m_iter(ptr) {}
 
-    LegacyOutputIterator& operator++()
-    {
-        m_iter++;
-        return *this;
-    }
-
-    LegacyOutputIterator operator++(int)
-    {
-        LegacyOutputIterator temp = *this;
-        ++(*this);
-        return temp;
-    }
-
-    LegacyOutputIterator(T* ptr) : m_iter(ptr) {}
-
-    LegacyOutputIterator& operator=(const T* ptr)
+    LegacyOutputIterator& operator=(const pointer ptr)
     {
         m_iter = ptr;
         return *this;
     }
 
+    pointer& get()
+    {
+        return m_iter;
+    }
+
+    const pointer& get() const
+    {
+        return m_iter;
+    }
+
 private:
-    Iter_t m_iter;
+    pointer m_iter;
 };
 

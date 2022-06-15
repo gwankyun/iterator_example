@@ -2,131 +2,117 @@
 #include "common.hpp"
 #include "LegacyBidirectionalIterator.hpp"
 
-template<typename T>
+template<typename Iter>
 struct LegacyRandomAccessIterator
+    : public Indirection<LegacyRandomAccessIterator<Iter>, Iter>
+    , public Increment<LegacyRandomAccessIterator<Iter>, Iter>
+    , public Decrement<LegacyRandomAccessIterator<Iter>, Iter>
 {
-    typedef LegacyBidirectionalIterator<T> Iter_t;
+    //typedef LegacyBidirectionalIterator<T> Iter_t;
 #ifdef __cpp_lib_concepts
     using iterator_concept = std::random_access_iterator_tag;
 #endif
-    typedef typename Iter_t::difference_type difference_type;
-    typedef typename Iter_t::value_type value_type;
-    typedef typename Iter_t::pointer pointer;
-    typedef typename Iter_t::reference reference;
+    typedef typename Iter::difference_type difference_type;
+    typedef typename Iter::value_type value_type;
+    typedef typename Iter::pointer pointer;
+    typedef typename Iter::reference reference;
     typedef std::random_access_iterator_tag iterator_category;
 
     LegacyRandomAccessIterator() {}
 
     LegacyRandomAccessIterator(const LegacyRandomAccessIterator& other)
-    : m_ptr(other.m_ptr)
+    : m_iter(other.m_iter)
     {}
 
     LegacyRandomAccessIterator& operator=(const LegacyRandomAccessIterator& other)
     {
         if (this != &other)
         {
-            m_ptr = other.m_ptr;
+            //m_iter = other.m_iter;
+            Iter::assignment(m_iter, other.m_iter);
         }
         return *this;
     }
 
     ~LegacyRandomAccessIterator() {}
 
-    reference operator*() const
-    {
-        return *m_ptr;
-    }
-
-    LegacyRandomAccessIterator& operator++()
-    {
-        ++m_ptr;
-        return *this;
-    }
-
-    LegacyRandomAccessIterator& operator--()
-    {
-        --m_ptr;
-        return *this;
-    }
-
-    LegacyRandomAccessIterator operator++(int)
-    {
-        LegacyRandomAccessIterator ip = *this;
-        ++(*this);
-        return ip;
-    }
-
-    LegacyRandomAccessIterator operator--(int)
-    {
-        LegacyRandomAccessIterator ip = *this;
-        --(*this);
-        return ip;
-    }
-
     LegacyRandomAccessIterator& operator+=(difference_type n)
     {
-        m_ptr += n;
+        Iter::addition_assignment(m_iter, n);
         return *this;
     }
 
     LegacyRandomAccessIterator& operator-=(difference_type n)
     {
-        m_ptr -= n;
+        Iter::subtraction_assignment(m_iter, n);
         return *this;
     }
 
     pointer operator->()
     {
-        return m_ptr;
+        //return m_iter;
+        return Iter::member_access(m_iter);
     }
 
     reference operator[](difference_type n)
     {
-        return *(m_ptr + n);
+        return Iter::subscript(m_iter, n);
     }
 
     reference operator[](difference_type n) const
     {
-        return *(m_ptr + n);
+        return Iter::subscript(m_iter, n);
     }
 
-    LegacyRandomAccessIterator(T* ptr) : m_ptr(ptr) {}
+    LegacyRandomAccessIterator(pointer ptr) : m_iter(ptr) {}
 
-    LegacyRandomAccessIterator& operator=(const T* ptr)
+    LegacyRandomAccessIterator& operator=(const pointer ptr)
     {
-        m_ptr = ptr;
+        m_iter = ptr;
         return *this;
     }
 
-    int compare(const LegacyRandomAccessIterator& other)
-    {
-        if (m_ptr < other.m_ptr)
-        {
-            return -1;
-        }
-        else if (m_ptr == other.m_ptr)
-        {
-            return 0;
-        }
-        else // if (m_iter > other.m_iter)
-        {
-            return 1;
-        }
-    }
+    //int compare(const LegacyRandomAccessIterator& other)
+    //{
+    //    if (m_iter < other.m_iter)
+    //    {
+    //        return -1;
+    //    }
+    //    else if (m_iter == other.m_iter)
+    //    {
+    //        return 0;
+    //    }
+    //    else // if (m_iter > other.m_iter)
+    //    {
+    //        return 1;
+    //    }
+    //}
 
     difference_type difference(const LegacyRandomAccessIterator& other)
     {
-        return m_ptr - other.m_ptr;
+        //return m_iter - other.m_iter;
+        return Iter::subtraction(m_iter, other.m_iter);
+    }
+
+    pointer& get()
+    {
+        return m_iter;
+    }
+
+    const pointer& get() const
+    {
+        return m_iter;
     }
 
 private:
-    T* m_ptr;
+    pointer m_iter;
 };
 
 template<typename T>
 inline bool operator==(const LegacyRandomAccessIterator<T>& lhs, const LegacyRandomAccessIterator<T>& rhs)
 {
-    return lhs.compare(rhs) == 0;
+    //return lhs.compare(rhs) == 0;
+    return lhs.difference(rhs) == 0;
 }
 
 template<typename T>

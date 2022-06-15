@@ -1,60 +1,51 @@
 #pragma once
 #include "common.hpp"
 
-template<typename T>
+template<typename Iter>
 struct LegacyIterator
+    : public Indirection<LegacyIterator<Iter>, Iter>
+    , public Increment<LegacyIterator<Iter>, Iter>
 {
-    typedef std::ptrdiff_t difference_type;
-    typedef T value_type;
-    typedef T* pointer;
-    typedef T& reference;
+    typedef typename Iter::difference_type difference_type;
+    typedef typename Iter::value_type value_type;
+    typedef typename Iter::pointer pointer;
+    typedef typename Iter::reference reference;
+
     typedef std::input_iterator_tag iterator_category;
 
-    LegacyIterator() : m_ptr(NULLPTR) {}
+    LegacyIterator() : m_iter(NULLPTR) {}
 
-    LegacyIterator(const LegacyIterator& other) : m_ptr(other.m_ptr) {}
+    LegacyIterator(const LegacyIterator& other) : m_iter(other.m_iter) {}
     
     LegacyIterator& operator=(const LegacyIterator& other)
     {
         if (this != &other)
         {
-            m_ptr = other.m_ptr;
+            m_iter = other.m_iter;
         }
         return *this;
     }
 
     ~LegacyIterator() {}
 
-    reference operator*()
-    {
-        return *m_ptr;
-    }
+    LegacyIterator(pointer ptr) : m_iter(ptr) {}
 
-    reference operator*() const
+    LegacyIterator& operator=(const pointer ptr)
     {
-        return *m_ptr;
-    }
-
-    LegacyIterator& operator++()
-    {
-        m_ptr++;
+        m_iter = ptr;
         return *this;
     }
 
-    LegacyIterator& operator++(int)
+    pointer& get()
     {
-        m_ptr++;
-        return *this;
+        return m_iter;
     }
 
-    LegacyIterator(T* ptr) : m_ptr(ptr) {}
-
-    LegacyIterator& operator=(const T* ptr)
+    const pointer& get() const
     {
-        m_ptr = ptr;
-        return *this;
+        return m_iter;
     }
 
 private:
-    T* m_ptr;
+    pointer m_iter;
 };

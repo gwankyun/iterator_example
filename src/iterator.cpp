@@ -163,9 +163,185 @@ TEST_CASE("char const*")
     CHECK(*p == '2');
 }
 
+template<typename T>
+struct Iterator
+{
+    typedef std::ptrdiff_t difference_type;
+    typedef T value_type;
+    typedef T* pointer;
+    typedef T& reference;
+
+    static reference indirection(pointer ptr)
+    {
+        return *ptr;
+    }
+
+    static void prefix_increment(pointer& ptr)
+    {
+        ++ptr;
+    }
+};
+
+template<typename T>
+struct InputIterator
+{
+    typedef std::ptrdiff_t difference_type;
+    typedef T value_type;
+    typedef T* pointer;
+    typedef T& reference;
+
+    static reference indirection(pointer ptr)
+    {
+        return *ptr;
+    }
+
+    static void prefix_increment(pointer& ptr)
+    {
+        ++ptr;
+    }
+
+    static pointer member_access(pointer ptr)
+    {
+        return ptr;
+    }
+};
+
+template<typename T>
+struct OutputIterator
+{
+    typedef std::ptrdiff_t difference_type;
+    typedef T value_type;
+    typedef T* pointer;
+    typedef T& reference;
+
+    static reference indirection(pointer ptr)
+    {
+        return *ptr;
+    }
+
+    static void prefix_increment(pointer& ptr)
+    {
+        ++ptr;
+    }
+
+    static pointer member_access(pointer ptr)
+    {
+        return ptr;
+    }
+};
+
+template<typename T>
+struct ForwardIterator
+{
+    typedef std::ptrdiff_t difference_type;
+    typedef T value_type;
+    typedef T* pointer;
+    typedef T& reference;
+
+    static reference indirection(pointer ptr)
+    {
+        return *ptr;
+    }
+
+    static void prefix_increment(pointer& ptr)
+    {
+        ++ptr;
+    }
+
+    static pointer member_access(pointer ptr)
+    {
+        return ptr;
+    }
+
+    static bool equality(pointer a, pointer b)
+    {
+        return a == b;
+    }
+};
+
+template<typename T>
+struct BidirectionalIterator
+{
+    typedef std::ptrdiff_t difference_type;
+    typedef T value_type;
+    typedef T* pointer;
+    typedef T& reference;
+
+    static reference indirection(pointer ptr)
+    {
+        return *ptr;
+    }
+
+    static void prefix_increment(pointer& ptr)
+    {
+        ++ptr;
+    }
+
+    static void prefix_decrement(pointer& ptr)
+    {
+        --ptr;
+    }
+
+    static pointer member_access(pointer ptr)
+    {
+        return ptr;
+    }
+};
+
+template<typename T>
+struct RandomAccessIterator
+{
+    typedef std::ptrdiff_t difference_type;
+    typedef T value_type;
+    typedef T* pointer;
+    typedef T& reference;
+
+    static reference indirection(pointer ptr)
+    {
+        return *ptr;
+    }
+
+    static void prefix_increment(pointer& ptr)
+    {
+        ++ptr;
+    }
+
+    static pointer member_access(pointer ptr)
+    {
+        return ptr;
+    }
+
+    static reference subscript(pointer ptr, difference_type n)
+    {
+        return *(ptr + n);
+    }
+
+    static void addition_assignment(pointer& ptr, difference_type n)
+    {
+        ptr += n;
+        return *this;
+    }
+
+    static void assignment(pointer& a, pointer b)
+    {
+        a = b;
+    }
+
+    static void subtraction_assignment(pointer& ptr, difference_type n)
+    {
+        ptr -= n;
+        return *this;
+    }
+
+    static difference_type subtraction(pointer& a, pointer& b)
+    {
+        return a - b;
+    }
+};
+
 TEST_CASE("LegacyIterator")
 {
-    using Iter_t = LegacyIterator<int>;
+    using Iter_t = LegacyIterator<Iterator<int>>;
 
     std::vector<int> vec { 1, 2, 3, 4, 5 };
     Iter_t iter = vec.data();
@@ -180,7 +356,8 @@ TEST_CASE("LegacyIterator")
 
 TEST_CASE("LegacyInputIterator")
 {
-    using Iter_t = LegacyInputIterator<int>;
+    using Iter_t = LegacyInputIterator<InputIterator<int>>;
+
     CHECK(std::input_iterator<Iter_t>);
 
     std::vector<int> vec { 1, 2, 3, 4, 5 };
@@ -190,12 +367,12 @@ TEST_CASE("LegacyInputIterator")
     CHECK((*iter == 2));
     ++iter;
     CHECK((*iter == 3));
-    CHECK((*iter++ == 4));
+    CHECK((*iter++ == 3));
 }
 
 TEST_CASE("LegacyOutputIterator")
 {
-    using Iter_t = LegacyOutputIterator<int>;
+    using Iter_t = LegacyOutputIterator<OutputIterator<int>>;
 
     CHECK(std::output_iterator<Iter_t, int>);
 
@@ -208,12 +385,12 @@ TEST_CASE("LegacyOutputIterator")
 
 TEST_CASE("LegacyForwardIterator")
 {
-    using Iter_t = LegacyForwardIterator<int>;
+    using Iter_t = LegacyForwardIterator<ForwardIterator<int>>;
 
     CHECK(std::forward_iterator<Iter_t>);
 
     std::vector<int> vec { 1, 2, 3, 4, 5 };
-    LegacyForwardIterator<int> iter = vec.data();
+    Iter_t iter = vec.data();
     *iter++ = 6;
     CHECK(vec[0] == 6);
     CHECK(vec[1] == 2);
@@ -221,14 +398,14 @@ TEST_CASE("LegacyForwardIterator")
 
 TEST_CASE("LegacyBidirectionalIterator")
 {
-    using Iter_t = LegacyBidirectionalIterator<int>;
+    using Iter_t = LegacyBidirectionalIterator<BidirectionalIterator<int>>;
 
     CHECK(std::bidirectional_iterator<Iter_t>);
 }
 
 TEST_CASE("LegacyRandomAccessIterator")
 {    
-    using Iter_t = LegacyRandomAccessIterator<int>;
+    using Iter_t = LegacyRandomAccessIterator<RandomAccessIterator<int>>;
 
     CHECK(std::random_access_iterator<Iter_t>);
 }

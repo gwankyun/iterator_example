@@ -2,17 +2,21 @@
 #include "common.hpp"
 #include "LegacyForwardIterator.hpp"
 
-template<typename T>
+template<typename Iter>
 struct LegacyBidirectionalIterator
+    : public Indirection<LegacyBidirectionalIterator<Iter>, Iter>
+    , public Increment<LegacyBidirectionalIterator<Iter>, Iter>
+    , public Decrement<LegacyBidirectionalIterator<Iter>, Iter>
 {
-    typedef LegacyForwardIterator<T> Iter_t;
 #ifdef __cpp_lib_concepts
     using iterator_concept = std::bidirectional_iterator_tag;
 #endif
-    typedef typename Iter_t::difference_type difference_type;
-    typedef typename Iter_t::value_type value_type;
-    typedef typename Iter_t::pointer pointer;
-    typedef typename Iter_t::reference reference;
+
+    typedef typename Iter::difference_type difference_type;
+    typedef typename Iter::value_type value_type;
+    typedef typename Iter::pointer pointer;
+    typedef typename Iter::reference reference;
+
     typedef std::bidirectional_iterator_tag iterator_category;
 
     LegacyBidirectionalIterator() {}
@@ -32,45 +36,14 @@ struct LegacyBidirectionalIterator
 
     ~LegacyBidirectionalIterator() {}
 
-    reference operator*() const
-    {
-        return *m_iter;
-    }
-
-    LegacyBidirectionalIterator& operator++()
-    {
-        ++m_iter;
-        return *this;
-    }
-
-    LegacyBidirectionalIterator& operator--()
-    {
-        --m_iter;
-        return *this;
-    }
-
-    LegacyBidirectionalIterator operator++(int)
-    {
-        LegacyBidirectionalIterator ip = *this;
-        ++(*this);
-        return ip;
-    }
-
-    LegacyBidirectionalIterator operator--(int)
-    {
-        LegacyBidirectionalIterator ip = *this;
-        --(*this);
-        return ip;
-    }
-
     pointer operator->()
     {
         return m_iter.operator->();
     }
 
-    LegacyBidirectionalIterator(T* ptr) : m_iter(ptr) {}
+    LegacyBidirectionalIterator(pointer ptr) : m_iter(ptr) {}
 
-    LegacyBidirectionalIterator& operator=(const T* ptr)
+    LegacyBidirectionalIterator& operator=(const pointer ptr)
     {
         m_iter = ptr;
         return *this;
@@ -92,13 +65,18 @@ struct LegacyBidirectionalIterator
         }
     }
 
-    T* data()
+    pointer& get()
     {
-        return m_iter.data();
+        return m_iter;
+    }
+
+    const pointer& get() const
+    {
+        return m_iter;
     }
 
 private:
-    Iter_t m_iter;
+    pointer m_iter;
 };
 
 template<typename T>

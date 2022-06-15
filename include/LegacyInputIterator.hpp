@@ -2,17 +2,20 @@
 #include "common.hpp"
 #include "LegacyIterator.hpp"
 
-template<typename T>
+template<typename Iter>
 struct LegacyInputIterator
+    : public Indirection<LegacyInputIterator<Iter>, Iter>
+    , public Increment<LegacyInputIterator<Iter>, Iter>
 {
-    typedef LegacyIterator<T> Iter_t;
 #ifdef __cpp_lib_concepts
     using iterator_concept = std::input_iterator_tag;
 #endif
-    typedef typename Iter_t::difference_type difference_type;
-    typedef typename Iter_t::value_type value_type;
-    typedef typename Iter_t::pointer pointer;
-    typedef typename Iter_t::reference reference;
+
+    typedef typename Iter::difference_type difference_type;
+    typedef typename Iter::value_type value_type;
+    typedef typename Iter::pointer pointer;
+    typedef typename Iter::reference reference;
+
     typedef std::input_iterator_tag iterator_category;
 
     LegacyInputIterator() {}
@@ -32,31 +35,15 @@ struct LegacyInputIterator
 
     ~LegacyInputIterator() {}
 
-    reference operator*() const
-    {
-        return *m_iter;
-    }
-
-    LegacyInputIterator& operator++()
-    {
-        ++m_iter;
-        return *this;
-    }
-
-    LegacyInputIterator& operator++(int)
-    {
-        ++m_iter;
-        return *this;
-    }
-
     pointer operator->()
     {
-        return m_iter.operator->();
+        //return m_iter.operator->();
+        return Iter::member_access(m_iter);
     }
 
-    LegacyInputIterator(T* ptr) : m_iter(ptr) {}
+    LegacyInputIterator(pointer ptr) : m_iter(ptr) {}
 
-    LegacyInputIterator& operator=(const T* ptr)
+    LegacyInputIterator& operator=(const pointer ptr)
     {
         m_iter = ptr;
         return *this;
@@ -78,8 +65,18 @@ struct LegacyInputIterator
         }
     }
 
+    pointer& get()
+    {
+        return m_iter;
+    }
+
+    const pointer& get() const
+    {
+        return m_iter;
+    }
+
 private:
-    Iter_t m_iter;
+    pointer m_iter;
 };
 
 template<typename T>

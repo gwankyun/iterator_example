@@ -2,17 +2,20 @@
 #include "common.hpp"
 #include "LegacyInputIterator.hpp"
 
-template<typename T>
+template<typename Iter>
 struct LegacyForwardIterator
+    : public Indirection<LegacyForwardIterator<Iter>, Iter>
+    , public Increment<LegacyForwardIterator<Iter>, Iter>
 {
-    typedef LegacyInputIterator<T> Iter_t;
 #ifdef __cpp_lib_concepts
     using iterator_concept = std::forward_iterator_tag;
 #endif
-    typedef typename Iter_t::difference_type difference_type;
-    typedef typename Iter_t::value_type value_type;
-    typedef typename Iter_t::pointer pointer;
-    typedef typename Iter_t::reference reference;
+
+    typedef typename Iter::difference_type difference_type;
+    typedef typename Iter::value_type value_type;
+    typedef typename Iter::pointer pointer;
+    typedef typename Iter::reference reference;
+
     typedef std::forward_iterator_tag iterator_category;
 
     LegacyForwardIterator() {}
@@ -32,33 +35,14 @@ struct LegacyForwardIterator
 
     ~LegacyForwardIterator() {}
 
-    reference operator*() const
-    {
-        return *m_iter;
-    }
-
-    LegacyForwardIterator& operator++()
-    {
-        ++m_iter;
-        return *this;
-    }
-
-    LegacyForwardIterator operator++(int)
-    {
-        // ++m_iter;
-        LegacyForwardIterator ip = *this;
-        ++(*this);
-        return ip;
-    }
-
     pointer operator->()
     {
         return m_iter.operator->();
     }
 
-    LegacyForwardIterator(T* ptr) : m_iter(ptr) {}
+    LegacyForwardIterator(pointer ptr) : m_iter(ptr) {}
 
-    LegacyForwardIterator& operator=(const T* ptr)
+    LegacyForwardIterator& operator=(const pointer ptr)
     {
         m_iter = ptr;
         return *this;
@@ -80,8 +64,18 @@ struct LegacyForwardIterator
         }
     }
 
+    pointer& get()
+    {
+        return m_iter;
+    }
+
+    const pointer& get() const
+    {
+        return m_iter;
+    }
+
 private:
-    Iter_t m_iter;
+    pointer m_iter;
 };
 
 template<typename T>
