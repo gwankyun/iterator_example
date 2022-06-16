@@ -6,6 +6,9 @@ template<typename Iter>
 struct LegacyInputIterator
     : public Indirection<LegacyInputIterator<Iter>, Iter>
     , public Increment<LegacyInputIterator<Iter>, Iter>
+    , public Assignment<LegacyInputIterator<Iter>, Iter>
+    , public MemberAccess<LegacyInputIterator<Iter>, Iter>
+    , public Equality<LegacyInputIterator<Iter>, Iter>
 {
 #ifdef __cpp_lib_concepts
     using iterator_concept = std::input_iterator_tag;
@@ -24,22 +27,7 @@ struct LegacyInputIterator
     : m_iter(other.m_iter)
     {}
 
-    LegacyInputIterator& operator=(const LegacyInputIterator& other)
-    {
-        if (this != &other)
-        {
-            m_iter = other.m_iter;
-        }
-        return *this;
-    }
-
     ~LegacyInputIterator() {}
-
-    pointer operator->()
-    {
-        //return m_iter.operator->();
-        return Iter::member_access(m_iter);
-    }
 
     LegacyInputIterator(pointer ptr) : m_iter(ptr) {}
 
@@ -47,22 +35,6 @@ struct LegacyInputIterator
     {
         m_iter = ptr;
         return *this;
-    }
-
-    int compare(const LegacyInputIterator& other)
-    {
-        if (m_iter < other.m_iter)
-        {
-            return -1;
-        }
-        else if (m_iter == other.m_iter)
-        {
-            return 0;
-        }
-        else // if (m_iter > other.m_iter)
-        {
-            return 1;
-        }
     }
 
     pointer& get()
@@ -78,15 +50,3 @@ struct LegacyInputIterator
 private:
     pointer m_iter;
 };
-
-template<typename T>
-inline bool operator==(const LegacyInputIterator<T>& lhs, const LegacyInputIterator<T>& rhs)
-{
-    return lhs.compare(rhs) == 0;
-}
-
-template<typename T>
-inline bool operator!=(const LegacyInputIterator<T>& lhs, const LegacyInputIterator<T>& rhs)
-{
-    return !(lhs == rhs);
-}

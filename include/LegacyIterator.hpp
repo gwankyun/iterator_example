@@ -5,6 +5,7 @@ template<typename Iter>
 struct LegacyIterator
     : public Indirection<LegacyIterator<Iter>, Iter>
     , public Increment<LegacyIterator<Iter>, Iter>
+    , public Assignment<LegacyIterator<Iter>, Iter>
 {
     typedef typename Iter::difference_type difference_type;
     typedef typename Iter::value_type value_type;
@@ -16,15 +17,6 @@ struct LegacyIterator
     LegacyIterator() : m_iter(NULLPTR) {}
 
     LegacyIterator(const LegacyIterator& other) : m_iter(other.m_iter) {}
-    
-    LegacyIterator& operator=(const LegacyIterator& other)
-    {
-        if (this != &other)
-        {
-            m_iter = other.m_iter;
-        }
-        return *this;
-    }
 
     ~LegacyIterator() {}
 

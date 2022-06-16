@@ -9,26 +9,18 @@
 template<typename D, typename T>
 struct Indirection
 {
-    //typedef typename T::reference reference;
+    typedef typename T::reference reference;
 
-    typename T::reference operator*()
+    reference operator*()
     {
-        return T::indirection(as_derived().get());
+        D& self = static_cast<D&>(*this);
+        return T::indirection(self.get());
     }
 
-    typename T::reference operator*() const
+    const reference operator*() const
     {
-        return T::indirection(as_derived().get());
-    }
-
-    D& as_derived()
-    {
-        return static_cast<D&>(*this);
-    }
-
-    const D& as_derived() const
-    {
-        return static_cast<const D&>(*this);
+        const D& self = static_cast<const D&>(*this);
+        return T::indirection(self.get());
     }
 };
 
@@ -37,32 +29,24 @@ struct Increment
 {
     D& operator++()
     {
-        static_assert(std::is_same_v<D&, decltype(as_derived())>);
-        T::prefix_increment(as_derived().get());
-        return as_derived();
+        D& self = static_cast<D&>(*this);
+        T::prefix_increment(self.get());
+        return self;
     }
 
     const D& operator++() const
     {
-        T::prefix_increment(as_derived().get());
-        return as_derived();
+        D& self = static_cast<const D&>(*this);
+        T::prefix_increment(self.get());
+        return self;
     }
 
     D operator++(int)
     {
-        D temp = as_derived();
-        T::prefix_increment(as_derived().get());
+        D& self = static_cast<D&>(*this);
+        D temp = self;
+        T::prefix_increment(self.get());
         return temp;
-    }
-
-    D& as_derived()
-    {
-        return static_cast<D&>(*this);
-    }
-
-    const D& as_derived() const
-    {
-        return static_cast<const D&>(*this);
     }
 };
 
@@ -71,59 +55,109 @@ struct Decrement
 {
     D& operator--()
     {
-        static_assert(std::is_same_v<D&, decltype(as_derived())>);
-        T::prefix_decrement(as_derived().get());
-        return as_derived();
+        D& self = static_cast<D&>(*this);
+        T::prefix_decrement(self.get());
+        return as_derived(this);
     }
 
     const D& operator--() const
     {
-        T::prefix_decrement(as_derived().get());
-        return as_derived();
+        const D& self = static_cast<const D&>(*this);
+        T::prefix_decrement(self.get());
+        return as_derived(this);
     }
 
     D operator--(int)
     {
-        D temp = as_derived();
-        T::prefix_decrement(as_derived().get());
+        D& self = static_cast<D&>(*this);
+        D temp = self;
+        T::prefix_decrement(self.get());
         return temp;
-    }
-
-    D& as_derived()
-    {
-        return static_cast<D&>(*this);
-    }
-
-    const D& as_derived() const
-    {
-        return static_cast<const D&>(*this);
     }
 };
 
-//template<typename D, typename T>
-//struct Subscript
-//{
-//    typedef typename T::reference reference;
-//    typedef typename T::difference_type difference_type;
-//
-//    reference operator[](difference_type n)
-//    {
-//        return Iter::subscript(m_iter, n);
-//    }
-//
-//    reference operator[](difference_type n) const
-//    {
-//        return Iter::subscript(m_iter, n);
-//    }
-//
-//    D& as_derived()
-//    {
-//        return static_cast<D&>(*this);
-//    }
-//
-//    const D& as_derived() const
-//    {
-//        return static_cast<const D&>(*this);
-//    }
-//};
+template<typename D, typename T>
+struct MemberAccess
+{
+    typename T::pointer operator->()
+    {
+        D& self = static_cast<D&>(*this);
+        return T::member_access(self.get());
+    }
+};
 
+
+template<typename D, typename T>
+struct Subscript
+{
+   typedef typename T::reference reference;
+   typedef typename T::difference_type difference_type;
+
+   reference operator[](difference_type n)
+   {
+       D& self = static_cast<D&>(*this);
+       return T::subscript(self.get(), n);
+   }
+
+   reference operator[](difference_type n) const
+   {
+        D& self = static_cast<D&>(*this);
+       return T::subscript(self.get(), n);
+   }
+};
+
+template<typename D, typename T>
+struct AdditionAssignment
+{
+    typedef typename T::difference_type difference_type;
+
+    D& operator+=(difference_type n)
+    {
+        D& self = static_cast<D&>(*this);
+        T::addition_assignment(self.get(), n);
+        return self;
+    }
+};
+
+template<typename D, typename T>
+struct SubtractionAssignment
+{
+    typedef typename T::difference_type difference_type;
+
+    D& operator-=(difference_type n)
+    {
+        D& self = static_cast<D&>(*this);
+        T::subtraction_assignment(self.get(), n);
+        return self;
+    }
+};
+
+template<typename D, typename T>
+struct Assignment
+{
+    D& operator=(const D& other)
+    {
+        D& self = static_cast<D&>(*this);
+        if (&self != &other)
+        {
+            T::assignment(self, other.m_iter);
+        }
+        return self;
+    }
+};
+
+template<typename D, typename T>
+struct Equality
+{
+    bool operator==(const D& other)
+    {
+        D& self = static_cast<D&>(*this);
+        return &self == other.get();
+    }
+
+    bool operator!=(const D& other)
+    {
+        D& self = static_cast<D&>(*this);
+        return &self != other.get();
+    }
+};

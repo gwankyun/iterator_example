@@ -180,6 +180,11 @@ struct Iterator
     {
         ++ptr;
     }
+
+    static void assignment(pointer& a, pointer b)
+    {
+        a = b;
+    }
 };
 
 template<typename T>
@@ -203,6 +208,16 @@ struct InputIterator
     static pointer member_access(pointer ptr)
     {
         return ptr;
+    }
+
+    static void assignment(pointer& a, pointer b)
+    {
+        a = b;
+    }
+
+    static bool equality(pointer a, pointer b)
+    {
+        return a == b;
     }
 };
 
@@ -228,6 +243,11 @@ struct OutputIterator
     {
         return ptr;
     }
+
+    static void assignment(pointer& a, pointer b)
+    {
+        a = b;
+    }
 };
 
 template<typename T>
@@ -248,14 +268,19 @@ struct ForwardIterator
         ++ptr;
     }
 
-    static pointer member_access(pointer ptr)
-    {
-        return ptr;
-    }
-
     static bool equality(pointer a, pointer b)
     {
         return a == b;
+    }
+
+    static void assignment(pointer& a, pointer b)
+    {
+        a = b;
+    }
+
+    static pointer member_access(pointer ptr)
+    {
+        return ptr;
     }
 };
 
@@ -285,6 +310,11 @@ struct BidirectionalIterator
     static pointer member_access(pointer ptr)
     {
         return ptr;
+    }
+        
+    static void assignment(pointer& a, pointer b)
+    {
+        a = b;
     }
 };
 

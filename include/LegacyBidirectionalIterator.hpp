@@ -7,6 +7,9 @@ struct LegacyBidirectionalIterator
     : public Indirection<LegacyBidirectionalIterator<Iter>, Iter>
     , public Increment<LegacyBidirectionalIterator<Iter>, Iter>
     , public Decrement<LegacyBidirectionalIterator<Iter>, Iter>
+    , public MemberAccess<LegacyForwardIterator<Iter>, Iter>
+    , public Assignment<LegacyForwardIterator<Iter>, Iter>
+    , public Equality<LegacyForwardIterator<Iter>, Iter>
 {
 #ifdef __cpp_lib_concepts
     using iterator_concept = std::bidirectional_iterator_tag;
@@ -25,21 +28,7 @@ struct LegacyBidirectionalIterator
     : m_iter(other.m_iter)
     {}
 
-    LegacyBidirectionalIterator& operator=(const LegacyBidirectionalIterator& other)
-    {
-        if (this != &other)
-        {
-            m_iter = other.m_iter;
-        }
-        return *this;
-    }
-
     ~LegacyBidirectionalIterator() {}
-
-    pointer operator->()
-    {
-        return m_iter.operator->();
-    }
 
     LegacyBidirectionalIterator(pointer ptr) : m_iter(ptr) {}
 
@@ -47,22 +36,6 @@ struct LegacyBidirectionalIterator
     {
         m_iter = ptr;
         return *this;
-    }
-
-    int compare(const LegacyBidirectionalIterator& other)
-    {
-        if (m_iter < other.m_iter)
-        {
-            return -1;
-        }
-        else if (m_iter == other.m_iter)
-        {
-            return 0;
-        }
-        else // if (m_iter > other.m_iter)
-        {
-            return 1;
-        }
     }
 
     pointer& get()
@@ -80,13 +53,17 @@ private:
 };
 
 template<typename T>
-inline bool operator==(const LegacyBidirectionalIterator<T>& lhs, const LegacyBidirectionalIterator<T>& rhs)
+inline bool operator==(
+    const LegacyBidirectionalIterator<T>& lhs,
+    const LegacyBidirectionalIterator<T>& rhs)
 {
-    return lhs.compare(rhs) == 0;
+    return lhs == rhs;
 }
 
 template<typename T>
-inline bool operator!=(const LegacyBidirectionalIterator<T>& lhs, const LegacyBidirectionalIterator<T>& rhs)
+inline bool operator!=(
+    const LegacyBidirectionalIterator<T>& lhs,
+    const LegacyBidirectionalIterator<T>& rhs)
 {
     return !(lhs == rhs);
 }

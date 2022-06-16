@@ -6,6 +6,9 @@ template<typename Iter>
 struct LegacyForwardIterator
     : public Indirection<LegacyForwardIterator<Iter>, Iter>
     , public Increment<LegacyForwardIterator<Iter>, Iter>
+    , public MemberAccess<LegacyForwardIterator<Iter>, Iter>
+    , public Assignment<LegacyForwardIterator<Iter>, Iter>
+    , public Equality<LegacyInputIterator<Iter>, Iter>
 {
 #ifdef __cpp_lib_concepts
     using iterator_concept = std::forward_iterator_tag;
@@ -24,21 +27,7 @@ struct LegacyForwardIterator
     : m_iter(other.m_iter)
     {}
 
-    LegacyForwardIterator& operator=(const LegacyForwardIterator& other)
-    {
-        if (this != &other)
-        {
-            m_iter = other.m_iter;
-        }
-        return *this;
-    }
-
     ~LegacyForwardIterator() {}
-
-    pointer operator->()
-    {
-        return m_iter.operator->();
-    }
 
     LegacyForwardIterator(pointer ptr) : m_iter(ptr) {}
 
@@ -46,22 +35,6 @@ struct LegacyForwardIterator
     {
         m_iter = ptr;
         return *this;
-    }
-
-    int compare(const LegacyForwardIterator& other)
-    {
-        if (m_iter < other.m_iter)
-        {
-            return -1;
-        }
-        else if (m_iter == other.m_iter)
-        {
-            return 0;
-        }
-        else // if (m_iter > other.m_iter)
-        {
-            return 1;
-        }
     }
 
     pointer& get()
@@ -79,13 +52,17 @@ private:
 };
 
 template<typename T>
-inline bool operator==(const LegacyForwardIterator<T>& lhs, const LegacyForwardIterator<T>& rhs)
+inline bool operator==(
+    const LegacyForwardIterator<T>& lhs,
+    const LegacyForwardIterator<T>& rhs)
 {
-    return lhs.compare(rhs) == 0;
+    return lhs == rhs;
 }
 
 template<typename T>
-inline bool operator!=(const LegacyForwardIterator<T>& lhs, const LegacyForwardIterator<T>& rhs)
+inline bool operator!=(
+    const LegacyForwardIterator<T>& lhs,
+    const LegacyForwardIterator<T>& rhs)
 {
     return !(lhs == rhs);
 }

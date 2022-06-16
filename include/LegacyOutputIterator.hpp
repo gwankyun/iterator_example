@@ -27,17 +27,11 @@ template<typename Iter>
 struct LegacyOutputIterator
     : public Indirection<LegacyOutputIterator<Iter>, Iter>
     , public Increment<LegacyOutputIterator<Iter>, Iter>
+    , public MemberAccess<LegacyOutputIterator<Iter>, Iter>
 {
-    //typedef LegacyIterator<T> Iter_t;
 #ifdef __cpp_lib_concepts
     using iterator_concept = std::output_iterator_tag;
 #endif
-
-    //typedef typename Iter_t::difference_type difference_type;
-    //typedef typename Iter_t::value_type value_type;
-    //typedef typename Iter_t::pointer pointer;
-    //typedef typename Iter_t::reference reference;
-
     typedef typename Iter::difference_type difference_type;
     typedef typename Iter::value_type value_type;
     typedef typename Iter::pointer pointer;
@@ -50,15 +44,6 @@ struct LegacyOutputIterator
     LegacyOutputIterator(const LegacyOutputIterator& other)
     : m_iter(other.m_iter)
     {}
-    
-    LegacyOutputIterator& operator=(const LegacyOutputIterator& other)
-    {
-        if (this != &other)
-        {
-            m_iter = other.m_iter;
-        }
-        return *this;
-    }
 
     ~LegacyOutputIterator() {}
 
@@ -83,4 +68,3 @@ struct LegacyOutputIterator
 private:
     pointer m_iter;
 };
-
