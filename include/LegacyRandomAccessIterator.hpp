@@ -42,6 +42,11 @@ struct LegacyRandomAccessIterator
         return Iter::subtraction(m_iter, other.m_iter);
     }
 
+    difference_type difference(const LegacyRandomAccessIterator& other) const
+    {
+        return Iter::subtraction(m_iter, other.m_iter);
+    }
+
     pointer& get()
     {
         return m_iter;

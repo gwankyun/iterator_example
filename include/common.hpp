@@ -57,14 +57,14 @@ struct Decrement
     {
         D& self = static_cast<D&>(*this);
         T::prefix_decrement(self.get());
-        return as_derived(this);
+        return self;
     }
 
     const D& operator--() const
     {
         const D& self = static_cast<const D&>(*this);
         T::prefix_decrement(self.get());
-        return as_derived(this);
+        return self;
     }
 
     D operator--(int)
